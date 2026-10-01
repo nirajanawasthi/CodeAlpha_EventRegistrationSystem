@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event Registration</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+:root{--ink:#1b2440;--paper:#eef1f6;--card:#fff;--gold:#f2a900;--green:#1f7a5a;--red:#c8352b;--mute:#5d6680;--line:#d5dbe7;--r:14px}
+@media (prefers-color-scheme:dark){:root{--ink:#e9edf8;--paper:#121828;--card:#1b2338;--green:#4cc79b;--red:#ff7a6e;--mute:#9aa4bf;--line:#2e3856}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.5 "DM Sans",system-ui,sans-serif}
+h1,h3{font-family:"Bricolage Grotesque","DM Sans",sans-serif;margin:0;line-height:1.1}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--line);background:var(--card)}
+.bar{display:flex;align-items:center;gap:14px;min-height:64px;flex-wrap:wrap;padding-top:6px;padding-bottom:6px}
+.brand{font:800 24px "Bricolage Grotesque",sans-serif;margin-right:auto}
+.brand i{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--gold);margin-left:5px}
+nav{display:flex;gap:4px}
+nav button{border:0;background:none;padding:8px 14px;border-radius:99px;cursor:pointer;color:var(--mute);font-weight:500}
+nav button[aria-current=true]{background:var(--ink);color:var(--paper)}
+.who{color:var(--mute);font-size:14px}
+.btn{border:0;border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer;background:var(--ink);color:var(--paper)}
+.btn.gold{background:var(--gold);color:#1b2440}
+.btn.ghost{background:none;border:1.5px solid var(--line);color:var(--ink)}
+.btn.danger{background:none;border:1.5px solid var(--red);color:var(--red)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+main{padding:32px 0 80px}
+.head{margin-bottom:24px}
+.head h1{font-size:clamp(30px,6vw,48px);font-weight:800}
+.head p{color:var(--mute);margin:8px 0 0;max-width:52ch}
+.grid{display:grid;gap:18px}
+.ticket{display:grid;grid-template-columns:1fr 150px;background:var(--card);border-radius:var(--r);position:relative;border:1px solid var(--line)}
+.ticket::before,.ticket::after{content:"";position:absolute;right:139px;width:22px;height:22px;border-radius:50%;background:var(--paper);border:1px solid var(--line)}
+.ticket::before{top:-12px;clip-path:inset(50% 0 0 0)}
+.ticket::after{bottom:-12px;clip-path:inset(0 0 50% 0)}
+.main{padding:22px 24px}
+.main h3{font-size:24px;font-weight:700}
+.main p{color:var(--mute);margin:8px 0 14px;font-size:15px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;margin-bottom:16px}
+.meta span{color:var(--mute)}
+.stub{border-left:2px dashed var(--line);padding:20px 16px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;gap:12px}
+.date b{display:block;font:800 40px/1 "Bricolage Grotesque",sans-serif}
+.date small{color:var(--mute);font-weight:500}
+.seats{width:100%}
+.track{height:8px;background:var(--line);border-radius:9px;overflow:hidden}
+.fill{height:100%;background:var(--green)}
+.seats.low .fill{background:var(--gold)}
+.seats.full .fill{background:var(--red)}
+.seats small{display:block;margin-top:6px;font-size:13px;color:var(--mute)}
+.tag{display:inline-block;font-size:13px;font-weight:700;padding:3px 10px;border-radius:99px;margin-bottom:10px}
+.tag.ok{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.tag.off{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px;max-width:480px}
+.panel.wide{max-width:680px}
+label{display:block;font-weight:500;font-size:14px;margin:14px 0 5px}
+input,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.err{color:var(--red);font-size:14px;min-height:20px;margin:12px 0}
+.swap{margin-top:16px;font-size:14px;color:var(--mute)}
+.swap button{border:0;background:none;color:var(--ink);font-weight:700;text-decoration:underline;cursor:pointer;padding:0}
+.empty{padding:40px 24px;border:2px dashed var(--line);border-radius:var(--r);text-align:center;color:var(--mute)}
+dialog{border:0;border-radius:var(--r);padding:24px;width:min(460px,92vw);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(10,15,30,.55)}
+dialog ul{list-style:none;padding:0;margin:16px 0;max-height:50vh;overflow:auto}
+dialog li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+dialog li small{display:block;color:var(--mute)}
+dialog .tag{margin:0}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:10px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+#toast.show{opacity:1}
+[hidden]{display:none!important}
+@media (max-width:640px){
+ .ticket{grid-template-columns:1fr}
+ .ticket::before,.ticket::after{display:none}
+ .stub{border-left:0;border-top:2px dashed var(--line);flex-direction:row;flex-wrap:wrap;text-align:left}
+ .seats{flex:1;min-width:140px}
+ .two{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+  <div class="brand">Event Registration<i></i></div>
+  <nav id="nav">
+    <button data-v="events">Events</button>
+    <button data-v="mine">My Registrations</button>
+    <button data-v="create" id="navCreate" hidden>Create Event</button>
+  </nav>
+  <span id="out"><button class="btn ghost" data-auth="login">Login</button> <button class="btn gold" data-auth="signup">Sign up</button></span>
+  <span id="in" hidden><span class="who" id="who"></span> <button class="btn ghost" id="logout">Logout</button></span>
+</div></header>
+
+<main class="wrap">
+  <section id="v-auth" hidden>
+    <div class="head"><h1 id="authTitle">Log in</h1><p id="authNote"></p></div>
+    <form class="panel" id="authForm">
+      <label for="a-user">Username</label><input id="a-user" autocomplete="username" required>
+      <div id="emailRow" hidden><label for="a-email">Email</label><input id="a-email" type="email" autocomplete="email"></div>
+      <label for="a-pass">Password</label><input id="a-pass" type="password" autocomplete="current-password" minlength="6" required>
+      <div class="err" id="authErr" role="alert"></div>
+      <button class="btn gold" type="submit" id="authBtn">Log in</button>
+      <div class="swap" id="swap"></div>
+    </form>
+  </section>
+
+  <section id="v-events">
+    <div class="head"><h1>Upcoming Events</h1><p>Pick an event and register. You can cancel any time from My Registrations.</p></div>
+    <div class="grid" id="events"></div>
+  </section>
+
+  <section id="v-mine" hidden>
+    <div class="head"><h1>My Registrations</h1><p>Cancelled registrations stay here as history.</p></div>
+    <div class="grid" id="mine"></div>
+  </section>
+
+  <section id="v-create" hidden>
+    <div class="head"><h1>Create Event</h1><p>Only organizers can publish events.</p></div>
+    <form class="panel wide" id="createForm">
+      <label for="c-title">Title</label><input id="c-title" required maxlength="120">
+      <label for="c-desc">Description</label><textarea id="c-desc" rows="3"></textarea>
+      <label for="c-loc">Location</label><input id="c-loc" required>
+      <div class="two">
+        <div><label for="c-start">Starts</label><input id="c-start" type="datetime-local" required></div>
+        <div><label for="c-end">Ends</label><input id="c-end" type="datetime-local" required></div>
+      </div>
+      <label for="c-cap">Capacity (seats)</label><input id="c-cap" type="number" min="1" value="50" required>
+      <div class="err" id="createErr" role="alert"></div>
+      <button class="btn gold" type="submit">Publish event</button>
+    </form>
+  </section>
+</main>
+
+<dialog id="dlgReg">
+  <h3 id="regTitle">Register</h3>
+  <form id="regForm">
+    <label for="r-name">Full name</label><input id="r-name" required>
+    <label for="r-email">Email</label><input id="r-email" type="email" required>
+    <label for="r-phone">Phone</label><input id="r-phone" type="tel">
+    <div class="err" id="regErr" role="alert"></div>
+    <div class="actions"><button class="btn gold" type="submit">Confirm registration</button><button class="btn ghost" type="button" id="regX">Close</button></div>
+  </form>
+</dialog>
+<dialog id="dlgList"><h3 id="listT"></h3><div id="listB"></div><button class="btn ghost" id="listX">Close</button></dialog>
+<div id="toast" role="status"></div>
+
+<script>
+const API = '/api';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const list = d => Array.isArray(d) ? d : (d?.results || []);
+const dt = iso => new Date(iso);
+let session = null, events = [], regs = [], view = 'events', authMode = 'login', regEvent = null;
+try { session = JSON.parse(localStorage.getItem('er_session') || 'null'); } catch (e) {}
+
+async function api(path, opt = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (session?.token) headers.Authorization = 'Token ' + session.token;
+  const res = await fetch(API + path, { ...opt, headers });
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) {
+    if (res.status === 401 && session) { logout(); }
+    let msg = '';
+    if (data && typeof data === 'object') msg = Object.entries(data).map(([k, v]) => (['detail', 'non_field_errors', 'error'].includes(k) ? '' : k + ': ') + [].concat(v).join(' ')).join(' ');
+    throw new Error(msg || 'Something went wrong (' + res.status + ').');
+  }
+  return data;
+}
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2800); }
+
+/* ---- Views ---- */
+function show(v, note) {
+  if (v === 'mine' && !session) { authMode = 'login'; v = 'auth'; note = 'Log in to see your registrations.'; }
+  if (v === 'create' && !session?.organizer) v = 'events';
+  view = v;
+  ['auth', 'events', 'mine', 'create'].forEach(n => $('#v-' + n).hidden = n !== v);
+  document.querySelectorAll('#nav button').forEach(b => b.setAttribute('aria-current', b.dataset.v === v));
+  if (v === 'auth') drawAuth(note);
+  if (v === 'events' || v === 'mine') load();
+}
+function drawAuth(note) {
+  const su = authMode === 'signup';
+  $('#authTitle').textContent = su ? 'Create your account' : 'Log in';
+  $('#authNote').textContent = note || '';
+  $('#emailRow').hidden = !su; $('#authBtn').textContent = su ? 'Sign up' : 'Log in';
+  $('#authErr').textContent = '';
+  $('#swap').innerHTML = su ? 'Already have an account? <button type="button" data-auth="login">Log in</button>' : 'New here? <button type="button" data-auth="signup">Sign up</button>';
+}
+function applySession() {
+  const on = !!session;
+  $('#out').hidden = on; $('#in').hidden = !on;
+  $('#navCreate').hidden = !session?.organizer;
+  $('#who').textContent = on ? 'Hi, ' + session.username + (session.organizer ? ' (organizer)' : '') : '';
+  show(on && view === 'auth' ? 'events' : view);
+}
+function logout() { session = null; regs = []; try { localStorage.removeItem('er_session'); } catch (e) {} view = 'events'; applySession(); }
+
+/* ---- Data ---- */
+async function load() {
+  try {
+    events = await api('/events/').then(list);
+    regs = session ? await api('/registrations/').then(list) : [];
+    drawEvents(); drawMine();
+  } catch (e) { toast(e.message); }
+}
+const activeReg = id => regs.find(r => r.event === id && r.status !== 'cancelled');
+const lastReg = id => activeReg(id) || regs.find(r => r.event === id);
+
+function ticket(ev, reg, mineView) {
+  const d = dt(ev.start_time), left = ev.seats_left, cap = ev.capacity;
+  const pct = cap ? Math.max(0, Math.min(100, ((cap - left) / cap) * 100)) : 0;
+  const cls = left <= 0 ? 'full' : left <= Math.ceil(cap * .15) ? 'low' : '';
+  const cancelled = reg && reg.status === 'cancelled', active = reg && !cancelled;
+  let tag = '', btn = '';
+  if (active) { tag = '<span class="tag ok">You are registered</span>'; btn = `<button class="btn danger" data-cancel="${esc(reg.id)}">Cancel registration</button>`; }
+  else {
+    if (cancelled) tag = '<span class="tag off">Cancelled</span>';
+    btn = left <= 0 ? '<button class="btn" disabled>Event full</button>' : `<button class="btn gold" data-reg="${esc(ev.id)}">${cancelled ? 'Register again' : 'Register'}</button>`;
+  }
+  const owner = session?.organizer && (session.superuser || ev.organizer === session.username);
+  const admin = (!mineView && owner) ? `<button class="btn ghost" data-regs="${esc(ev.id)}" data-t="${esc(ev.title)}">Registrations</button><button class="btn danger" data-del="${esc(ev.id)}">Delete</button>` : '';
+  return `<article class="ticket">
+    <div class="main">${tag}<h3>${esc(ev.title)}</h3><p>${esc(ev.description)}</p>
+      <div class="meta"><div><span>Where</span> ${esc(ev.location)}</div>
+        <div><span>When</span> ${esc(d.toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' }))} to ${esc(dt(ev.end_time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}</div>
+        <div><span>Registered</span> ${esc(ev.registered_count)}/${esc(cap)}</div>
+        <div><span>Organizer</span> ${esc(ev.organizer)}</div></div>
+      <div class="actions">${btn}${admin}</div></div>
+    <div class="stub">
+      <div class="date"><b>${d.getDate()}</b><small>${esc(d.toLocaleString([], { month: 'short', year: 'numeric' }))}</small></div>
+      <div class="seats ${cls}"><div class="track"><div class="fill" style="width:${pct}%"></div></div><small>${left > 0 ? esc(left) + ' of ' + esc(cap) + ' seats left' : 'No seats left'}</small></div>
+    </div></article>`;
+}
+function drawEvents() {
+  $('#events').innerHTML = events.length ? events.map(ev => ticket(ev, lastReg(ev.id))).join('') : '<div class="empty">No events yet. Organizers can create the first one.</div>';
+}
+function drawMine() {
+  const rows = regs.map(r => {
+    const ev = events.find(e => e.id === r.event);
+    return ev ? ticket(ev, r, true) : `<div class="empty">${esc(r.event_title)} (${esc(r.status)})</div>`;
+  }).join('');
+  $('#mine').innerHTML = rows || '<div class="empty">You have not registered for anything yet. Open Events and take a seat.</div>';
+}
+
+/* ---- Auth ---- */
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-auth]');
+  if (a) { authMode = a.dataset.auth; show('auth'); }
+});
+$('#authForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('#authErr').textContent = '';
+  const username = $('#a-user').value.trim(), password = $('#a-pass').value;
+  try {
+    if (authMode === 'signup') await api('/auth/signup/', { method: 'POST', body: JSON.stringify({ username, email: $('#a-email').value, password }) });
+    const { token } = await api('/auth/login/', { method: 'POST', body: JSON.stringify({ username, password }) });
+    session = { token, username };
+    try {
+      const me = await api('/auth/me/');
+      session.username = me.username || username; session.email = me.email || '';
+      session.superuser = !!me.is_superuser;
+      session.organizer = !!(me.is_staff || me.is_superuser || me.is_organizer || me.role === 'organizer');
+    } catch (x) {}
+    try { localStorage.setItem('er_session', JSON.stringify(session)); } catch (x) {}
+    $('#a-pass').value = ''; view = 'events'; applySession(); toast('Welcome, ' + session.username + '.');
+  } catch (err) { session = null; $('#authErr').textContent = err.message; }
+});
+$('#logout').addEventListener('click', logout);
+$('#nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) show(b.dataset.v); });
+
+/* ---- Event actions ---- */
+document.addEventListener('click', async e => {
+  const r = e.target.closest('[data-reg]'), c = e.target.closest('[data-cancel]'), g = e.target.closest('[data-regs]'), d = e.target.closest('[data-del]');
+  if (r) {
+    if (!session) { authMode = 'login'; return show('auth', 'Log in to register for an event.'); }
+    regEvent = events.find(x => String(x.id) === r.dataset.reg);
+    $('#regTitle').textContent = 'Register for ' + regEvent.title;
+    $('#r-email').value = $('#r-email').value || session.email || ''; $('#regErr').textContent = '';
+    $('#dlgReg').showModal();
+  }
+  if (c && confirm('Cancel this registration?')) {
+    try { await api(`/registrations/${c.dataset.cancel}/cancel/`, { method: 'POST' }); toast('Registration cancelled.'); load(); } catch (err) { toast(err.message); }
+  }
+  if (g) {
+    try {
+      const rows = list(await api(`/events/${g.dataset.regs}/registrations/`));
+      $('#listT').textContent = g.dataset.t;
+      $('#listB').innerHTML = rows.length ? '<ul>' + rows.map(x => `<li><div><b>${esc(x.full_name)}</b><small>${esc(x.email)} ${esc(x.phone)}</small></div><span class="tag ${x.status === 'cancelled' ? 'off' : 'ok'}">${esc(x.status)}</span></li>`).join('') + '</ul>' : '<p class="empty">No one has registered yet.</p>';
+      $('#dlgList').showModal();
+    } catch (err) { toast(err.message); }
+  }
+  if (d && confirm('Delete this event? Its registrations will be removed too.')) {
+    try { await api(`/events/${d.dataset.del}/`, { method: 'DELETE' }); toast('Event deleted.'); load(); } catch (err) { toast(err.message); }
+  }
+});
+$('#regForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('#regErr').textContent = '';
+  try {
+    await api(`/events/${regEvent.id}/register/`, { method: 'POST', body: JSON.stringify({ full_name: $('#r-name').value, email: $('#r-email').value, phone: $('#r-phone').value }) });
+    $('#dlgReg').close(); toast('Registered. See you there.'); load();
+  } catch (err) { $('#regErr').textContent = err.message; }
+});
+$('#regX').addEventListener('click', () => $('#dlgReg').close());
+$('#listX').addEventListener('click', () => $('#dlgList').close());
+
+$('#createForm').addEventListener('submit', async e => {
+  e.preventDefault(); const er = $('#createErr'); er.textContent = '';
+  const s = $('#c-start').value, en = $('#c-end').value;
+  if (new Date(en) <= new Date(s)) { er.textContent = 'End time must be after the start time.'; return; }
+  try {
+    await api('/events/', { method: 'POST', body: JSON.stringify({ title: $('#c-title').value, description: $('#c-desc').value, location: $('#c-loc').value, start_time: new Date(s).toISOString(), end_time: new Date(en).toISOString(), capacity: +$('#c-cap').value }) });
+    e.target.reset(); toast('Event published.'); show('events');
+  } catch (err) { er.textContent = err.message; }
+});
+
+applySession();
+</script>
+</body>
+</html>
